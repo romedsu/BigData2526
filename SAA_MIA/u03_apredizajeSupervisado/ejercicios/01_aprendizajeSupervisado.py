@@ -1731,7 +1731,7 @@ plt.title('Fronteras de Decisión: Regresión Logística (Iris)')
 
 
 
-# %% EJERCICIO 33
+# %% EJERCICIO 34
 
 '''
 34 Comparación de Árboles de Decisión con y sin limitación de profundidad
@@ -1863,7 +1863,7 @@ plt.subplot(1, 2, 1)
 
 plt.title(label="Árbol de decisión con Depth=3", fontsize=16)
 
-tree.plot_tree(arbolSinDepth ,
+tree.plot_tree(arbolDepth3,
                feature_names=datosIris.feature_names,
                class_names=list(datosIris.target_names),
                filled=True,
@@ -1886,7 +1886,7 @@ plt.subplot(1, 2, 2)
 
 plt.title(label="Árbol de decisión sin parámetros adicionales", fontsize=16)
 
-tree.plot_tree(arbolDepth3,
+tree.plot_tree(arbolSinDepth,
                feature_names=datosIris.feature_names,
                class_names=list(datosIris.target_names),
                filled=True,
@@ -1900,4 +1900,8 @@ plt.xlabel("Árbol sin parámetros",fontsize=30)
 plt.text(0.5, 1.02, "Sin parámetros", fontsize=12)
 
 
-# I)
+# I) Ajustar automáticamente el espaciado
+
+plt.tight_layout()
+
+plt.show()
