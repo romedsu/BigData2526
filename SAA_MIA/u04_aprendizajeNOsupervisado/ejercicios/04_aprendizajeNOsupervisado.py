@@ -1167,3 +1167,169 @@ print(test_data.info())
 print(test_data['CLASS'].value_counts())
 
 
+# %% EJERCICIO 25
+
+'''
+ej 25 DBSCAN
+    25. Empleando el algoritmo DBSCAN (Density-Based Spatial Clustering of Applications with Noise),
+     crea un modelo de aprendizaje automático que agrupe los clientes mayoristas 
+     utilizando el archivo CSV de Kaggle "wholesale_customers_dataset.csv"
+     disponible en https://www.kaggle.com/datasets/binovi/wholesale-customers-data-set
+     A diferencia de K-Means, DBSCAN no requiere especificar el número de clusters
+     de antemano y puede identificar puntos atípicos como ruido. Realizarás 
+     un preprocesado completo de los datos, entrenarás el modelo DBSCAN con los 
+     datos de entrenamiento, predecirás las categorías del conjunto de prueba y
+     mapearás los clusters encontrados a las categorías originales del dataset 
+     para evaluar el rendimiento del algoritmo.
+
+        a) Importa las bibliotecas necesarias: pandas, warnings, train_test_split
+            desde sklearn.model_selection, DBSCAN desde sklearn.cluster, 
+            y StandardScaler desde sklearn.preprocessing. 
+            Configura warnings.filterwarnings("ignore") para evitar mensajes de aviso.
+        
+        
+        b) Carga el archivo CSV llamado 'wholesale_customers_dataset.csv' 
+            en un DataFrame llamado datos. Este dataset contiene información
+            sobre clientes mayoristas incluyendo sus compras anuales
+            en diferentes categorías de productos.
+            
+                
+        c) Elimina todas las filas que contengan valores nulos o 
+            vacíos utilizando datos.dropna() para asegurar la calidad de los datos.
+            
+        
+        d) Extrae los valores de la columna 'Channel' en un array
+            llamado channel usando datos['Channel'].values. 
+            Esta columna representa el canal de venta (Horeca o Retail)
+            y será la variable objetivo para comparar con las predicciones. 
+            Separa las características 'Channel' y 'Region' del resto de 
+            las variables usando datos.drop(['Channel', 'Region'], axis=1),
+            ya que estas columnas no deben usarse como características
+            predictoras en el clustering.
+        
+        e) Realiza el preprocesado de datos mediante estandarización.
+            Crea una instancia de StandardScaler() llamada scaler, 
+            y ajusta y transforma los datos usando scaler.fit_transform(datos),
+            guardando el resultado en datos_escalados. La estandarización
+            es importante para que DBSCAN calcule correctamente 
+            las distancias entre puntos.
+            
+            
+        f) Genera los conjuntos de entrenamiento y prueba utilizando
+            train_test_split() con datos_escalados y channel como entrada, 
+            y los parámetros test_size=0.2 y random_state=42. 
+            Guarda los resultados en X_train, X_test, labels_train, labels_test.
+
+
+        g) Entrena el modelo DBSCAN creando una instancia con
+            los parámetros eps=1.0 (radio máximo de vecindad) 
+            y min_samples=10 (número mínimo de puntos para formar un cluster denso). 
+            Ajusta el modelo únicamente con los datos de entrenamiento
+            usando dbscan.fit(X_train).
+        
+        
+        h) Predice los clusters del conjunto de prueba utilizando
+            dbscan.fit_predict(X_test) y guarda el resultado en la variable predicciones.
+            DBSCAN asignará etiquetas numéricas a cada cluster encontrado 
+            y la etiqueta -1 para puntos considerados ruido.
+        
+        
+        i) Mapea las etiquetas predichas por DBSCAN a las categorías
+            originales del dataset. Crea una lista llamada prediccionesMapeadas
+            donde los puntos del cluster 0 se mapean a categoría 1, 
+            y los puntos considerados ruido (etiqueta -1) o de otros 
+            clusters se mapean a categoría 2. Usa una comprensión de lista:
+                [1 if label == 0 else 2 for label in predicciones].
+        
+        
+        j) Muestra por pantalla los resultados mediante un bucle que
+            recorra todos los registros del conjunto de prueba. Para cada registro, 
+            imprime su número de índice (i+1), la categoría predicha obtenida 
+            de prediccionesMapeadas[i], y la categoría real obtenida de labels_test[i]. 
+            El formato debe permitir comparar fácilmente las predicciones
+            con la realidad y evaluar el rendimiento del algoritmo DBSCAN.   
+                
+                 
+'''
+
+# a) IMPORTACIONES
+import pandas as pd
+import matplotlib.pyplot as pl
+from sklearn.cluster import DBSCAN
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+# warnings.filterwarnings("ignore")
+
+
+# b) CREAR DATAFRAME
+datos=pd.read_csv('wholesale_customers_dataset.csv')
+
+
+# c) ELIMINAR NULOS
+datos= datos.dropna()
+
+
+# d) VARIABLE OBJETIVO
+channel= datos['Channel'].values
+
+
+datos= datos.drop(['Channel', 'Region'], axis=1)
+
+
+# e) STANDARD
+scaler= StandardScaler()
+
+datos_escalados=scaler.fit_transform(datos)
+
+
+# f) TRAIN TEST SPLIT
+# X --> datos_escalados --> datos de entrada
+# Y --> channel --> variable objetivo
+X_train, X_test, labels_train, labels_test = train_test_split(datos_escalados,channel,test_size=0.2, random_state=42)
+
+
+# g) ENTRENAR MODELO DBSCAN
+dbscan = DBSCAN(eps=1.0, min_samples=10)
+
+dbscan.fit(X_train)
+
+
+# h) PREDICCIÓN 
+# generar grupos
+predicciones = dbscan.fit_predict(X_test)
+
+
+# i) MAPEADO DE ETIQUETAS
+
+
+# Mapeamos: Cluster 0 -> Categoría 1 | Ruido (-1) u otros clusters -> Categoría 2
+# Se aplica la lógica: Cluster 0 -> 1, el resto (-1 u otros) -> 2
+
+# por bucle con compresión
+prediccionesMapeadas = [1 if label == 0 else 2 for label in predicciones]
+
+
+
+
+# j) MOSTRAR RESULTADOS
+print(f"{'Registro'} | {'Predicción'} | {'Categoría Real'}")
+
+for i in range(len(labels_test)):
+    # i+1 para el índice humano, prediccionesMapeadas para el resultado y labels_test para el real
+    print(f"{(i+1)} | {prediccionesMapeadas[i]} | {labels_test[i]}")
+    
+    
+
+# OPCION con FORMATEO en visualización
+
+# print(f"{'Registro':<10} | {'Predicción':<12} | {'Real':<6}")
+# print("-" * 35)
+
+# for i in range(len(labels_test)):
+#     # i+1 para el índice humano, prediccionesMapeadas para el resultado y labels_test para el real
+#     print(f"{(i+1):<10} | Cat: {prediccionesMapeadas[i]:<8} | Cat: {labels_test[i]}")
+
+
+
+
+
