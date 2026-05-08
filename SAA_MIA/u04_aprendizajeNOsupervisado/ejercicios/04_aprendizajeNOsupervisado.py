@@ -1320,7 +1320,7 @@ for i in range(len(labels_test)):
     
     
 
-# OPCION con FORMATEO en visualización
+# OPCION con FORMATEO en visualizacion
 
 # print(f"{'Registro':<10} | {'Predicción':<12} | {'Real':<6}")
 # print("-" * 35)
